@@ -1,0 +1,163 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+
+# --- Functions ---
+
+def displayMenu():
+    """Display difficulty level selection."""
+    clear_window()
+    tk.Label(root, text="🎯 Select Difficulty Level", font=("Arial", 16, "bold")).pack(pady=10)
+    
+    tk.Button(root, text="Easy (1-digit)", width=20, command=lambda: start_quiz("easy")).pack(pady=5)
+    tk.Button(root, text="Moderate (2-digit)", width=20, command=lambda: start_quiz("moderate")).pack(pady=5)
+    tk.Button(root, text="Advanced (4-digit)", width=20, command=lambda: start_quiz("advanced")).pack(pady=5)
+    
+    tk.Label(root, text="").pack()  # Spacer
+    tk.Button(root, text="Exit", width=15, bg="tomato", command=root.quit).pack(pady=5)
+
+
+def randomInt(level):
+    """Return random integers depending on difficulty level."""
+    if level == "easy":
+        return random.randint(1, 9), random.randint(1, 9)
+    elif level == "moderate":
+        return random.randint(10, 99), random.randint(10, 99)
+    elif level == "advanced":
+        return random.randint(1000, 9999), random.randint(1000, 9999)
+
+
+def decideOperation():
+    """Randomly decide among +, -, ×, ÷."""
+    return random.choice(["+", "-", "*", "/"])
+
+
+def displayProblem():
+    """Display a single math question."""
+    global current_question, attempt, num1, num2, operation, answer_entry
+
+    clear_window()
+    tk.Label(root, text=f"Question {current_question}/10", font=("Arial", 14, "bold")).pack(pady=10)
+    
+    num1, num2 = randomInt(difficulty)
+    operation = decideOperation()
+
+    # Ensure valid division problems
+    if operation == "/":
+        # Make sure division has whole number result
+        num2 = random.randint(1, 9) if difficulty == "easy" else random.randint(2, 12)
+        num1 = num2 * random.randint(1, 9) if difficulty == "easy" else num2 * random.randint(2, 12)
+
+    # Question display
+    op_symbol = {"*": "×", "/": "÷"}.get(operation, operation)
+    tk.Label(root, text=f"{num1} {op_symbol} {num2} =", font=("Arial", 18)).pack(pady=10)
+
+    answer_entry = tk.Entry(root, font=("Arial", 14))
+    answer_entry.pack(pady=10)
+    answer_entry.focus()
+
+    tk.Button(root, text="Submit", command=check_answer, width=10).pack(pady=10)
+    tk.Button(root, text="Exit Quiz", width=10, bg="tomato", command=displayMenu).pack(pady=5)
+
+
+def check_answer():
+    """Check user’s answer and handle scoring."""
+    global score, current_question, attempt
+
+    try:
+        user_answer = float(answer_entry.get())
+    except ValueError:
+        messagebox.showwarning("Invalid", "Please enter a number.")
+        return
+
+    if operation == "+":
+        correct_answer = num1 + num2
+    elif operation == "-":
+        correct_answer = num1 - num2
+    elif operation == "*":
+        correct_answer = num1 * num2
+    elif operation == "/":
+        correct_answer = num1 / num2
+
+    # Round for floating-point safety (for division)
+    if abs(user_answer - correct_answer) < 0.01:
+        user_correct = True
+    else:
+        user_correct = False
+
+    if user_correct:
+        # Correct
+        if attempt == 1:
+            score += 10
+            messagebox.showinfo("Correct!", "Perfect! +10 points 🎉")
+        else:
+            score += 5
+            messagebox.showinfo("Correct!", "Correct on second try! +5 points 😄")
+
+        current_question += 1
+        attempt = 1
+        if current_question > 10:
+            displayResults()
+        else:
+            displayProblem()
+
+    else:
+        if attempt == 1:
+            attempt += 1
+            messagebox.showwarning("Try again", "Wrong! Try once more.")
+        else:
+            messagebox.showinfo("Incorrect", f"Wrong again! The correct answer was {correct_answer:.2f}.")
+            current_question += 1
+            attempt = 1
+            if current_question > 10:
+                displayResults()
+            else:
+                displayProblem()
+
+
+def displayResults():
+    """Show final results and rank."""
+    clear_window()
+    tk.Label(root, text="🏆 Quiz Completed!", font=("Arial", 16, "bold")).pack(pady=10)
+    tk.Label(root, text=f"Your Final Score: {score} / 100", font=("Arial", 14)).pack(pady=10)
+
+    if score >= 90:
+        rank = "A+"
+    elif score >= 80:
+        rank = "A"
+    elif score >= 70:
+        rank = "B"
+    elif score >= 60:
+        rank = "C"
+    else:
+        rank = "Needs Improvement 😢"
+
+    tk.Label(root, text=f"Rank: {rank}", font=("Arial", 14, "italic")).pack(pady=10)
+    tk.Button(root, text="Play Again", width=15, command=displayMenu).pack(pady=5)
+    tk.Button(root, text="Exit", width=15, bg="tomato", command=root.quit).pack(pady=5)
+
+
+def start_quiz(level):
+    """Start quiz with chosen difficulty."""
+    global difficulty, current_question, score, attempt
+    difficulty = level
+    score = 0
+    current_question = 1
+    attempt = 1
+    displayProblem()
+
+
+def clear_window():
+    """Clear all widgets from the window."""
+    for widget in root.winfo_children():
+        widget.destroy()
+
+
+# --- Main Window ---
+root = tk.Tk()
+root.title("Maths Quiz 🧮")
+root.geometry("500x480")
+root.resizable(False, False)
+
+displayMenu()
+root.mainloop()
