@@ -153,7 +153,7 @@ def check_answer():
         if attempt == 1:
             attempt += 1
             # "Slap" warning
-            messagebox.showwarning("WRONG", "I hear a ruler slapping...\nTry again.")
+            messagebox.showwarning("WRONG", "I hear a growl on the distance...\nTry again.")
             
             # Reset visuals
             root.configure(bg=BARNEY_PURPLE)
