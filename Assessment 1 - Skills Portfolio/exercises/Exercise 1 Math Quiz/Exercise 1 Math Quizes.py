@@ -161,7 +161,7 @@ def check_answer():
             image_label.configure(image=happy_photo, bg=BARNEY_PURPLE)
             image_label.image = happy_photo
         else:
-            messagebox.showerror("FAIL", f"SMACK!\nAnswer: {correct:.2f}")
+            messagebox.showerror("FAIL", f"ROARS!!!!\nAnswer: {correct:.2f}")
             current_question += 1
             attempt = 1
             if current_question > 10: displayResults()
