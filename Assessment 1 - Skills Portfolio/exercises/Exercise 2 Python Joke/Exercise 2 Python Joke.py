@@ -11,7 +11,7 @@ class JokeApp:
         self.root.title("Python Joke Bot ʕ•͡•ʔ")
         self.root.geometry("600x500")
 
-        # --- PATH SETUP (Fixes the "Blue Feather" issue) ---
+        # --- PATH SETUP ---
         self.base_path = os.path.dirname(os.path.abspath(__file__))
 
         # --- 1. SETTING THE ICON ---
@@ -46,8 +46,7 @@ class JokeApp:
             try:
                 pygame.mixer.music.load(music_path)
                 
-                # --- CHANGE 1: LOWER VOLUME ---
-                pygame.mixer.music.set_volume(0.1)  # Changed from 0.3 to 0.1
+                pygame.mixer.music.set_volume(0.3)
                 
                 pygame.mixer.music.play(-1)
             except Exception as e:
